@@ -1,14 +1,13 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 
 // Layouts
 import AdminLayout from "../layouts/adminlayout";
 import AuthLayout from "../layouts/authlayouts";
 
-// Auth pages (eager load)
-import Login from "../pages/auth/login";
 
-// Admin pages (lazy load)
+// Pages
+const Login = lazy(() => import("../pages/auth/login"));
 const Dashboard = lazy(() => import("../pages/admin/dashboard"));
 const CompanyProfile = lazy(() => import("../pages/admin/company/profile"));
 const TeamMembers = lazy(() => import("../pages/admin/team/members"));
@@ -43,6 +42,10 @@ const LoadingFallback = () => (
     </div>
 );
 
+const withSuspense = (element: ReactNode) => (
+    <Suspense fallback={<LoadingFallback />}>{element}</Suspense>
+);
+
 const router = createBrowserRouter([
     {
         path: "/",
@@ -53,7 +56,7 @@ const router = createBrowserRouter([
         element: <AuthLayout />,
         children: [
             { index: true, element: <Navigate to="/auth/login" replace /> },
-            { path: "login", element: <Login /> },
+            { path: "login", element: withSuspense(<Login />) },
         ],
     },
     {
@@ -62,147 +65,75 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <Dashboard />
-                    </Suspense>
-                ),
+                element: withSuspense(<Dashboard />),
             },
             {
                 path: "company",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <CompanyProfile />
-                    </Suspense>
-                ),
+                element: withSuspense(<CompanyProfile />),
             },
             {
                 path: "team",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <TeamMembers />
-                    </Suspense>
-                ),
+                element: withSuspense(<TeamMembers />),
             },
             {
                 path: "team/invite",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <InviteMembers />
-                    </Suspense>
-                ),
+                element: withSuspense(<InviteMembers />),
             },
             {
                 path: "team/onboarding",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <OnboardingStatus />
-                    </Suspense>
-                ),
+                element: withSuspense(<OnboardingStatus />),
             },
             {
                 path: "credits",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <Credits />
-                    </Suspense>
-                ),
+                element: withSuspense(<Credits />),
             },
             {
                 path: "credits/callback",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <PaymentCallback />
-                    </Suspense>
-                ),
+                element: withSuspense(<PaymentCallback />),
             },
             {
                 path: "credits/invoices",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <Invoices />
-                    </Suspense>
-                ),
+                element: withSuspense(<Invoices />),
             },
             {
                 path: "credits/invoices/:id",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <InvoiceDetail />
-                    </Suspense>
-                ),
+                element: withSuspense(<InvoiceDetail />),
             },
             {
                 path: "plans",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <TravelPlans />
-                    </Suspense>
-                ),
+                element: withSuspense(<TravelPlans />),
             },
             {
                 path: "plans/create",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <CreatePlan />
-                    </Suspense>
-                ),
+                element: withSuspense(<CreatePlan />),
             },
             {
                 path: "plans/:id",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <PlanDetails />
-                    </Suspense>
-                ),
+                element: withSuspense(<PlanDetails />),
             },
             {
                 path: "requests",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <CreditRequests />
-                    </Suspense>
-                ),
+                element: withSuspense(<CreditRequests />),
             },
             {
                 path: "reports",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <Reports />
-                    </Suspense>
-                ),
+                element: withSuspense(<Reports />),
             },
             {
                 path: "audit",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <AuditLog />
-                    </Suspense>
-                ),
+                element: withSuspense(<AuditLog />),
             },
             {
                 path: "api-keys",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <ApiKeys />
-                    </Suspense>
-                ),
+                element: withSuspense(<ApiKeys />),
             },
             {
                 path: "settings",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <Settings />
-                    </Suspense>
-                ),
+                element: withSuspense(<Settings />),
             },
             {
                 path: "settings/export",
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <DataExport />
-                    </Suspense>
-                ),
+                element: withSuspense(<DataExport />),
             },
         ],
     },

@@ -1,7 +1,22 @@
+import { lazy, Suspense } from "react";
 import { LucideUsers, LucideCoins, LucideFileText, LucideClipboardCheck, LucideArrowRight, LucideLoader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useMyCompanies, useEmployees, useTravelPlans, useCreditRequests, useCompanyCreditHistory, useDashboardAnalytics } from "../../api/hooks";
-import DashboardAnalyticsCharts from "../../components/admin/DashboardAnalyticsCharts";
+
+const DashboardAnalyticsCharts = lazy(() => import("../../components/admin/DashboardAnalyticsCharts"));
+
+const ChartLoadingFallback = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        {[1, 2].map((i) => (
+            <div
+                key={i}
+                className="bg-white rounded-2xl border border-border-light/50 p-8 flex items-center justify-center min-h-[280px]"
+            >
+                <LucideLoader2 className="w-8 h-8 text-accent animate-spin" />
+            </div>
+        ))}
+    </div>
+);
 
 const Dashboard = () => {
     const { data: companiesData } = useMyCompanies();
@@ -60,6 +75,7 @@ const Dashboard = () => {
         { label: "Pending Requests", value: pendingRequests, icon: LucideClipboardCheck, href: "/admin/requests", loading: requestsLoading },
     ];
 
+
     return (
         <div className="space-y-6">
             <div className="mb-8">
@@ -101,7 +117,9 @@ const Dashboard = () => {
                 ))}
             </div>
 
-            <DashboardAnalyticsCharts data={dashboardAnalytics} isLoading={analyticsLoading} />
+            <Suspense fallback={<ChartLoadingFallback />}>
+                <DashboardAnalyticsCharts data={dashboardAnalytics} isLoading={analyticsLoading} />
+            </Suspense>
 
             {/* Quick Actions */}
             <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">

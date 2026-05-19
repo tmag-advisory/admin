@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
     LucidePlus,
@@ -10,10 +10,13 @@ import {
     LucideCheck,
     LucideX,
     LucideCoins,
+    LucideTrash2,
 } from "lucide-react";
-import { useMyCompanies, useCompanyTeamMembers, useCompanyAdminAllocateCredits, useDeleteCompanyAdminUser, useRestrictUserAccess } from "../../../api/hooks";
+import { useMyCompanies, useCompanyTeamMembers, useCompanyAdminAllocateCredits, useDeleteCompanyAdminUser, useRestrictUserAccess, useUpdateCompanyAdminUser } from "../../../api/hooks";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
+
+const AVAILABLE_ROLES = ["Individual", "Admin", "Manager", "Viewer"];
 
 const TeamMembers = () => {
     const [searchQuery, setSearchQuery] = useState("");
@@ -21,14 +24,17 @@ const TeamMembers = () => {
     const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [allocatingFor, setAllocatingFor] = useState<number | null>(null);
     const [newCredits, setNewCredits] = useState("");
-    const menuBtnRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
+    const [changingRoleFor, setChangingRoleFor] = useState<number | null>(null);
+    const [confirmRemove, setConfirmRemove] = useState<number | null>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
 
-    const openMenu = (id: number) => {
+    const openMenu = useCallback((id: number, e: React.MouseEvent<HTMLButtonElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setMenuPos({ top: rect.bottom + 4, left: rect.right - 192 });
         setShowMenu(id);
-    };
+    }, []);
 
-
-
+    // Close menu on scroll
     useEffect(() => {
         if (showMenu === null) return;
         const onScroll = () => setShowMenu(null);
@@ -36,18 +42,21 @@ const TeamMembers = () => {
         return () => window.removeEventListener("scroll", onScroll, true);
     }, [showMenu]);
 
+    // Close menu on click outside
     useEffect(() => {
-        window.addEventListener("click", (e) => {
-            if (showMenu === null) return;
-            const btn = menuBtnRefs.current.get(showMenu);
-            if (btn && btn.contains(e.target as Node)) {
-                const rect = btn.getBoundingClientRect();
-                setMenuPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
-            } else {
+        if (showMenu === null) return;
+        const handler = (e: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
                 setShowMenu(null);
             }
-        })
-    }, [])
+        };
+        // Defer adding the listener so we don't immediately close on the opening click
+        const id = setTimeout(() => document.addEventListener("click", handler), 0);
+        return () => {
+            clearTimeout(id);
+            document.removeEventListener("click", handler);
+        };
+    }, [showMenu]);
 
     const { data: companiesData } = useMyCompanies();
     const company = companiesData?.[0];
@@ -57,6 +66,7 @@ const TeamMembers = () => {
     const restrictAccess = useRestrictUserAccess();
     const deleteCompanyUser = useDeleteCompanyAdminUser();
     const allocateCredits = useCompanyAdminAllocateCredits();
+    const updateCompanyUser = useUpdateCompanyAdminUser();
 
     const allMembers = teamMembersData || [];
     const members = searchQuery
@@ -67,12 +77,12 @@ const TeamMembers = () => {
         )
         : allMembers;
 
-    const handleStatusChange = (companyUserId: number, currentStatus: string) => {
-        const restricted = currentStatus === "active";
+    const handleStatusChange = (companyUserId: number, currentEmployeeStatus: string) => {
+        const isCurrentlyActive = currentEmployeeStatus === "active";
         restrictAccess.mutate(
-            { companyUserId, restricted },
+            { companyUserId, restricted: isCurrentlyActive },
             {
-                onSuccess: () => toast.success(restricted ? "User deactivated" : "User activated"),
+                onSuccess: () => toast.success(isCurrentlyActive ? "Member deactivated" : "Member activated"),
                 onError: () => toast.error("Failed to update status"),
             }
         );
@@ -106,6 +116,33 @@ const TeamMembers = () => {
                 }
             }
         );
+    };
+
+    const handleRoleChange = (companyUserId: number, newRole: string) => {
+        if (!companyId) {
+            toast.error("Company not found");
+            return;
+        }
+        updateCompanyUser.mutate(
+            { companyUserId, data: { role: newRole } },
+            {
+                onSuccess: () => {
+                    toast.success("Role updated");
+                    setChangingRoleFor(null);
+                },
+                onError: () => toast.error("Failed to update role"),
+            }
+        );
+    };
+
+    const handleRemove = (companyUserId: number) => {
+        deleteCompanyUser.mutate(companyUserId, {
+            onSuccess: () => {
+                toast.success("Member removed");
+                setConfirmRemove(null);
+            },
+            onError: () => toast.error("Failed to remove member"),
+        });
     };
 
     return (
@@ -220,9 +257,25 @@ const TeamMembers = () => {
                                         )}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">
-                                            {member.role || "Member"}
-                                        </span>
+                                        {changingRoleFor === member.company_user_id ? (
+                                            <div className="flex items-center gap-1">
+                                                <select
+                                                    defaultValue={member.role || "Individual"}
+                                                    onChange={(e) => handleRoleChange(member.company_user_id, e.target.value)}
+                                                    className="border border-border-light rounded-lg px-2 py-1 text-xs font-semibold text-heading outline-none focus:border-accent"
+                                                    autoFocus
+                                                    onBlur={() => setChangingRoleFor(null)}
+                                                >
+                                                    {AVAILABLE_ROLES.map((r) => (
+                                                        <option key={r} value={r}>{r}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">
+                                                {member.role || "Member"}
+                                            </span>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className="text-sm text-heading font-medium">{member.credits_used ?? 0}</span>
@@ -243,8 +296,7 @@ const TeamMembers = () => {
                                     </td>
                                     <td className="px-6 py-4 text-right relative">
                                         <button
-                                            ref={(el) => { if (el) menuBtnRefs.current.set(member.company_user_id, el); }}
-                                            onClick={() => showMenu === member.company_user_id ? setShowMenu(null) : openMenu(member.company_user_id)}
+                                            onClick={(e) => showMenu === member.company_user_id ? setShowMenu(null) : openMenu(member.company_user_id, e)}
                                             className="p-1 rounded-lg hover:bg-background-primary transition-colors"
                                         >
                                             <LucideMoreVertical className="w-5 h-5 text-muted" />
@@ -252,9 +304,15 @@ const TeamMembers = () => {
 
                                         {showMenu === member.company_user_id && (
                                             <>
-                                                <div className="inset-0 z-40" onClick={() => setShowMenu(null)} />
+                                                {/* Backdrop */}
                                                 <div
-                                                    className="absolute top-0 left-0 w-48 bg-white rounded-xl border border-border-light/50 shadow-lg py-2 z-50"
+                                                    className="fixed inset-0 z-40"
+                                                    onClick={() => setShowMenu(null)}
+                                                />
+                                                {/* Dropdown menu */}
+                                                <div
+                                                    ref={menuRef}
+                                                    className="fixed w-48 bg-white rounded-xl border border-border-light/50 shadow-lg py-2 z-50"
                                                     style={{ top: menuPos.top, left: menuPos.left }}
                                                 >
                                                     <button
@@ -267,7 +325,13 @@ const TeamMembers = () => {
                                                         <LucideCoins className="w-4 h-4" />
                                                         Allocate credits
                                                     </button>
-                                                    <button className="w-full px-4 py-2 text-left text-sm text-heading hover:bg-background-primary transition-colors flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setChangingRoleFor(member.company_user_id);
+                                                            setShowMenu(null);
+                                                        }}
+                                                        className="w-full px-4 py-2 text-left text-sm text-heading hover:bg-background-primary transition-colors flex items-center gap-2"
+                                                    >
                                                         <LucideUserCog className="w-4 h-4" />
                                                         Change Role
                                                     </button>
@@ -278,13 +342,34 @@ const TeamMembers = () => {
                                                         <LucideUserX className="w-4 h-4" />
                                                         {member.employee_status === "active" ? "Deactivate" : "Activate"}
                                                     </button>
-                                                    <button
-                                                        onClick={() => { deleteCompanyUser.mutate(member.company_user_id); setShowMenu(null); }}
-                                                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
-                                                    >
-                                                        <LucideUserX className="w-4 h-4" />
-                                                        Remove
-                                                    </button>
+                                                    {confirmRemove === member.company_user_id ? (
+                                                        <div className="px-4 py-2 space-y-2">
+                                                            <p className="text-xs text-muted">Remove this member?</p>
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    onClick={() => handleRemove(member.company_user_id)}
+                                                                    disabled={deleteCompanyUser.isPending}
+                                                                    className="flex-1 px-2 py-1 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                                                                >
+                                                                    {deleteCompanyUser.isPending ? "Removing..." : "Remove"}
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setConfirmRemove(null)}
+                                                                    className="px-2 py-1 text-xs font-semibold text-heading bg-button-secondary rounded-lg hover:bg-border-light transition-colors"
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => setConfirmRemove(member.company_user_id)}
+                                                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                                                        >
+                                                            <LucideTrash2 className="w-4 h-4" />
+                                                            Remove
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </>
                                         )}

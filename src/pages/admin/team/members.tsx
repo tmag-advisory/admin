@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
     LucidePlus,
@@ -21,28 +21,13 @@ const AVAILABLE_ROLES = ["Individual", "Admin", "Manager", "Viewer"];
 const TeamMembers = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [showMenu, setShowMenu] = useState<number | null>(null);
-    const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [allocatingFor, setAllocatingFor] = useState<number | null>(null);
     const [newCredits, setNewCredits] = useState("");
     const [changingRoleFor, setChangingRoleFor] = useState<number | null>(null);
     const [confirmRemove, setConfirmRemove] = useState<number | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
-    const openMenu = useCallback((id: number, e: React.MouseEvent<HTMLButtonElement>) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        setMenuPos({ top: rect.bottom + 4, left: rect.right - 192 });
-        setShowMenu(id);
-    }, []);
-
-    // Close menu on scroll
-    useEffect(() => {
-        if (showMenu === null) return;
-        const onScroll = () => setShowMenu(null);
-        window.addEventListener("scroll", onScroll, true);
-        return () => window.removeEventListener("scroll", onScroll, true);
-    }, [showMenu]);
-
-    // Close menu on click outside
+    // Close menu on click outside — capturing mousedown
     useEffect(() => {
         if (showMenu === null) return;
         const handler = (e: MouseEvent) => {
@@ -50,12 +35,8 @@ const TeamMembers = () => {
                 setShowMenu(null);
             }
         };
-        // Defer adding the listener so we don't immediately close on the opening click
-        const id = setTimeout(() => document.addEventListener("click", handler), 0);
-        return () => {
-            clearTimeout(id);
-            document.removeEventListener("click", handler);
-        };
+        document.addEventListener("mousedown", handler, true);
+        return () => document.removeEventListener("mousedown", handler, true);
     }, [showMenu]);
 
     const { data: companiesData } = useMyCompanies();
@@ -184,7 +165,7 @@ const TeamMembers = () => {
             </div>
 
             {/* Members Table */}
-            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] ">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-visible">
                 <table className="w-full">
                     <thead className="bg-background-primary border-b border-border-light/50">
                         <tr>
@@ -295,25 +276,18 @@ const TeamMembers = () => {
                                         <span className="text-sm text-heading">{member.credits_used > 0 ? Math.floor(member.credits_used) : 0}</span>
                                     </td>
                                     <td className="px-6 py-4 text-right relative">
-                                        <button
-                                            onClick={(e) => showMenu === member.company_user_id ? setShowMenu(null) : openMenu(member.company_user_id, e)}
-                                            className="p-1 rounded-lg hover:bg-background-primary transition-colors"
-                                        >
-                                            <LucideMoreVertical className="w-5 h-5 text-muted" />
-                                        </button>
+                                        <div className="relative inline-block">
+                                            <button
+                                                onClick={() => showMenu === member.company_user_id ? setShowMenu(null) : setShowMenu(member.company_user_id)}
+                                                className="p-1 rounded-lg hover:bg-background-primary transition-colors"
+                                            >
+                                                <LucideMoreVertical className="w-5 h-5 text-muted" />
+                                            </button>
 
-                                        {showMenu === member.company_user_id && (
-                                            <>
-                                                {/* Backdrop */}
-                                                <div
-                                                    className="fixed inset-0 z-40"
-                                                    onClick={() => setShowMenu(null)}
-                                                />
-                                                {/* Dropdown menu */}
+                                            {showMenu === member.company_user_id && (
                                                 <div
                                                     ref={menuRef}
-                                                    className="fixed w-48 bg-white rounded-xl border border-border-light/50 shadow-lg py-2 z-50"
-                                                    style={{ top: menuPos.top, left: menuPos.left }}
+                                                    className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-border-light/50 shadow-lg py-2 z-50"
                                                 >
                                                     <button
                                                         onClick={() => {
@@ -371,8 +345,8 @@ const TeamMembers = () => {
                                                         </button>
                                                     )}
                                                 </div>
-                                            </>
-                                        )}
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))

@@ -108,12 +108,12 @@ const PlanDetails = () => {
                         <LucideMapPin className="w-4 h-4" />
                         {plan.destination}
                     </div>
-                    {tripAtGlance?.purpose && (
+                    {tripAtGlance?.purpose ? (
                         <div className="flex items-center gap-2 text-sm text-muted">
                             <LucideFileText className="w-4 h-4" />
                             {tripAtGlance.purpose as string}
                         </div>
-                    )}
+                    ) : null}
                 </div>
             </div>
 
@@ -129,7 +129,7 @@ const PlanDetails = () => {
                     <div className="p-5">
                         <div className="rounded-xl bg-red-50 border border-red-100 p-4 text-sm">
                             <p className="font-semibold text-red-700">{(hardStop.conditionTriggered as string) ?? "Hard stop condition"}</p>
-                            {hardStop.reason && <p className="text-red-700/90 mt-1">{hardStop.reason as string}</p>}
+                            {hardStop.reason ? <p className="text-red-700/90 mt-1">{hardStop.reason as string}</p> : null}
                         </div>
                     </div>
                 </div>
@@ -139,36 +139,36 @@ const PlanDetails = () => {
             <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                 <h2 className="text-sm font-semibold text-heading mb-3">Trip Summary</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    {tripAtGlance?.durationDays && (
+                    {tripAtGlance?.durationDays ? (
                         <div>
                             <span className="text-muted">Duration:</span>{" "}
                             <span className="text-heading font-medium">{tripAtGlance.durationDays as number} days</span>
                         </div>
-                    )}
-                    {tripAtGlance?.purpose && (
+                    ) : null}
+                    {tripAtGlance?.purpose ? (
                         <div>
                             <span className="text-muted">Purpose:</span>{" "}
                             <span className="text-heading font-medium">{tripAtGlance.purpose as string}</span>
                         </div>
-                    )}
-                    {tripAtGlance?.travelling && (
+                    ) : null}
+                    {tripAtGlance?.travelling ? (
                         <div>
                             <span className="text-muted">Travel with:</span>{" "}
                             <span className="text-heading font-medium">{tripAtGlance.travelling as string}</span>
                         </div>
-                    )}
-                    {tripAtGlance?.accommodation && (
+                    ) : null}
+                    {tripAtGlance?.accommodation ? (
                         <div>
                             <span className="text-muted">Accommodation:</span>{" "}
                             <span className="text-heading font-medium">{tripAtGlance.accommodation as string}</span>
                         </div>
-                    )}
-                    {tripAtGlance?.insurance && (
+                    ) : null}
+                    {tripAtGlance?.insurance ? (
                         <div>
                             <span className="text-muted">Insurance:</span>{" "}
                             <span className="text-heading font-medium">{tripAtGlance.insurance as string}</span>
                         </div>
-                    )}
+                    ) : null}
                     {plan.purpose && !tripAtGlance?.purpose && (
                         <div className="col-span-full">
                             <span className="text-muted">Purpose:</span>{" "}

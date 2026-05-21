@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEmployee, useTravelPlans } from "../../../api/hooks";
-import { LucideArrowLeft, LucideLoader2, LucideMapPin, LucideCoins, LucideClipboardList, LucideUser } from "lucide-react";
+import { LucideArrowLeft, LucideLoader2, LucideMapPin, LucideCoins, LucideClipboardList } from "lucide-react";
 
 const EmployeeDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -61,9 +61,8 @@ const EmployeeDetail = () => {
                         <p className="text-sm text-muted">{employee.email}</p>
                         <div className="flex items-center gap-3 mt-2">
                             <span className="text-xs text-body bg-button-secondary px-2.5 py-1 rounded-full">{employee.department}</span>
-                            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                                employee.status === "active" ? "text-accent bg-accent/10" : "text-muted bg-button-secondary"
-                            }`}>
+                            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${employee.status === "active" ? "text-accent bg-accent/10" : "text-muted bg-button-secondary"
+                                }`}>
                                 {employee.status}
                             </span>
                         </div>
@@ -127,11 +126,10 @@ const EmployeeDetail = () => {
                                     <p className="text-xs text-muted">{plan.purpose} &middot; {plan.duration} days</p>
                                 </div>
                                 <div className="text-right">
-                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                                        plan.status === "COMPLETED" || plan.status === "active" ? "text-accent bg-accent/10"
+                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${plan.status === "COMPLETED" || plan.status === "active" ? "text-accent bg-accent/10"
                                             : plan.status === "PROCESSING" || plan.status === "flagged" ? "text-gold bg-gold/10"
-                                            : "text-muted bg-button-secondary"
-                                    }`}>
+                                                : "text-muted bg-button-secondary"
+                                        }`}>
                                         {plan.status}
                                     </span>
                                     <p className="text-[10px] text-muted mt-1">{new Date(plan.createdAt).toLocaleDateString()}</p>

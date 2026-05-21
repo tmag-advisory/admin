@@ -22,8 +22,6 @@ import type {
   PurchaseCreditsRequest,
   // Travel Plan
   TravelPlanResponse,
-  CreateTravelPlanRequest,
-  UpdateTravelPlanRequest,
   // Credit Request
   CreditRequestResponse,
   CreateCreditRequestRequest,
@@ -80,6 +78,7 @@ import type {
   // Company Admin Management
   CompanyAdminUserCreateRequest,
   CompanyAdminUserUpdateRequest,
+  CompanyAdminCreditAllocationRequest,
   CompanyTeamMember,
   // Settings
   CompanySettingsResponse,
@@ -223,14 +222,7 @@ export const travelPlansApi = {
   get: (id: number) =>
     api.get<ApiResponse<TravelPlanResponse>>(`/travel-plans/${id}`).then((r) => r.data.data),
 
-  create: (data: CreateTravelPlanRequest) =>
-    api.post<ApiResponse<TravelPlanResponse>>("/travel-plans", data).then((r) => r.data.data),
 
-  update: (id: number, data: UpdateTravelPlanRequest) =>
-    api.put<ApiResponse<TravelPlanResponse>>(`/travel-plans/${id}`, data).then((r) => r.data.data),
-
-  delete: (id: number) =>
-    api.delete<ApiResponse<null>>(`/travel-plans/${id}`).then((r) => r.data.data),
 };
 
 // ─── Credit Requests ─────────────────────────────────────────
@@ -623,4 +615,7 @@ export const companyAdminManagementApi = {
 
   deleteCompany: (companyId: number) =>
     api.delete<ApiResponse<null>>(`/company-admin/companies/${companyId}`).then((r) => r.data.data),
+
+  allocateCredits: (data: CompanyAdminCreditAllocationRequest) =>
+    api.post<ApiResponse<CompanyTeamMember>>("/company-admin/allocate-credits", data).then((r) => r.data.data),
 };

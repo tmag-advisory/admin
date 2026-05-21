@@ -12,6 +12,7 @@ import {
     LucideLayoutDashboard,
     LucideLogOut,
     LucideX,
+    LucideBriefcase,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useMobileSidebar } from "../../context/MobileSidebarContext";
@@ -24,6 +25,7 @@ const navItems = [
     { label: "Dashboard", href: "/admin", icon: LucideLayoutDashboard, end: true },
     { label: "Company Profile", href: "/admin/company", icon: LucideBuilding2 },
     { label: "Team Members", href: "/admin/team", icon: LucideUsers },
+    { label: "Employees", href: "/admin/employees", icon: LucideBriefcase },
     { label: "Credits & Billing", href: "/admin/credits", icon: LucideCoins },
     { label: "Travel Plans", href: "/admin/plans", icon: LucideFileText },
     { label: "Credit Requests", href: "/admin/requests", icon: LucideClipboardList },

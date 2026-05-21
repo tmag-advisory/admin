@@ -36,8 +36,6 @@ import type {
   AllocateEmployeeCreditsRequest,
   UpdateEmployeeStatusRequest,
   InviteEmployeeRequest,
-  CreateTravelPlanRequest,
-  UpdateTravelPlanRequest,
   CreateCreditRequestRequest,
   UpdateCreditRequestRequest,
   CreateHealthProfileRequest,
@@ -59,6 +57,7 @@ import type {
   CompanySettingsUpdateRequest,
   CompanyAdminUserCreateRequest,
   CompanyAdminUserUpdateRequest,
+  CompanyAdminCreditAllocationRequest,
 } from "./types";
 
 // ─── Query Keys ──────────────────────────────────────────────
@@ -446,39 +445,6 @@ export function useTravelPlan(id: number) {
   });
 }
 
-export function useCreateTravelPlan() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: CreateTravelPlanRequest) => travelPlansApi.create(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.travelPlans.all });
-      qc.invalidateQueries({ queryKey: ["admin-reports"] });
-    },
-  });
-}
-
-export function useUpdateTravelPlan() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateTravelPlanRequest }) =>
-      travelPlansApi.update(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.travelPlans.all });
-      qc.invalidateQueries({ queryKey: ["admin-reports"] });
-    },
-  });
-}
-
-export function useDeleteTravelPlan() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: number) => travelPlansApi.delete(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.travelPlans.all });
-      qc.invalidateQueries({ queryKey: ["admin-reports"] });
-    },
-  });
-}
 
 // ─── Credit Request Hooks ────────────────────────────────────
 
@@ -1209,6 +1175,17 @@ export function useDeleteCompanyAdmin() {
     mutationFn: (companyId: number) => companyAdminManagementApi.deleteCompany(companyId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.companies.all });
+      qc.invalidateQueries({ queryKey: queryKeys.companyUsers.all });
+    },
+  });
+}
+
+export function useCompanyAdminAllocateCredits() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CompanyAdminCreditAllocationRequest) =>
+      companyAdminManagementApi.allocateCredits(data),
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.companyUsers.all });
     },
   });

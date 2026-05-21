@@ -18,12 +18,13 @@ const Invoices = lazy(() => import("../pages/admin/credits/invoices"));
 const InvoiceDetail = lazy(() => import("../pages/admin/credits/invoice-detail"));
 const TravelPlans = lazy(() => import("../pages/admin/plans/list"));
 const PlanDetails = lazy(() => import("../pages/admin/plans/details"));
-const CreatePlan = lazy(() => import("../pages/admin/plans/create"));
 const CreditRequests = lazy(() => import("../pages/admin/requests/list"));
 const Reports = lazy(() => import("../pages/admin/reports/overview"));
 const OnboardingStatus = lazy(() => import("../pages/admin/team/onboarding-status"));
 const Settings = lazy(() => import("../pages/admin/settings/general"));
 const AuditLog = lazy(() => import("../pages/admin/audit/log"));
+const Employees = lazy(() => import("../pages/admin/employees/index"));
+const EmployeeDetail = lazy(() => import("../pages/admin/employees/detail"));
 const ApiKeys = lazy(() => import("../pages/admin/api-keys/manage"));
 const DataExport = lazy(() => import("../pages/admin/settings/data-export"));
 
@@ -104,10 +105,6 @@ const router = createBrowserRouter([
                 element: withSuspense(<TravelPlans />),
             },
             {
-                path: "plans/create",
-                element: withSuspense(<CreatePlan />),
-            },
-            {
                 path: "plans/:id",
                 element: withSuspense(<PlanDetails />),
             },
@@ -118,6 +115,14 @@ const router = createBrowserRouter([
             {
                 path: "reports",
                 element: withSuspense(<Reports />),
+            },
+            {
+                path: "employees",
+                element: withSuspense(<Employees />),
+            },
+            {
+                path: "employees/:id",
+                element: withSuspense(<EmployeeDetail />),
             },
             {
                 path: "audit",

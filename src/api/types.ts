@@ -231,26 +231,6 @@ export interface TravelPlanResponse {
   updatedAt: string;
 }
 
-export interface CreateTravelPlanRequest {
-  companyId?: number;
-  employeeId?: number;
-  userId?: number;
-  destination: string;
-  country: string;
-  duration: number;
-  purpose: string;
-  riskScore?: number;
-  status?: string;
-  medicalConsiderations?: string;
-  vaccinations?: string;
-  healthAlerts?: string;
-  safetyAdvisories?: string;
-  medications?: string;
-  waterFood?: string;
-  emergencyContacts?: string;
-}
-
-export interface UpdateTravelPlanRequest extends Partial<CreateTravelPlanRequest> { }
 
 // ─── Credit Request ──────────────────────────────────────────
 
@@ -800,6 +780,12 @@ export interface CompanyAdminUserUpdateRequest {
 
 export interface CompanyAdminAccessRequest {
   restricted: boolean;
+}
+
+export interface CompanyAdminCreditAllocationRequest {
+  companyId: number;
+  companyUserId: number;
+  creditsAllocated: number;
 }
 
 export interface CompanyTeamMember {

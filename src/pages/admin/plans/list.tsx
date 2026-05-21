@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { LucideSearch, LucidePlus, LucideMapPin, LucideCalendar, LucideChevronRight, LucideUser, LucideLoader2 } from "lucide-react";
+import { LucideSearch, LucideMapPin, LucideCalendar, LucideChevronRight, LucideUser, LucideLoader2 } from "lucide-react";
 import { useMyCompanies, useTravelPlans } from "../../../api/hooks";
 
 const TravelPlans = () => {
@@ -48,13 +48,6 @@ const TravelPlans = () => {
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Travel Plans</h1>
                     <p className="text-sm text-muted mt-1">View and manage all employee travel health plans</p>
                 </div>
-                <Link
-                    to="/admin/plans/create"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 self-start"
-                >
-                    <LucidePlus className="w-4 h-4" />
-                    Create Plan
-                </Link>
             </div>
 
             <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-4">
@@ -96,13 +89,7 @@ const TravelPlans = () => {
                     </div>
                     <p className="text-base font-semibold text-heading mb-1">No travel plans found</p>
                     <p className="text-sm text-muted mb-4">Try adjusting your search or filters</p>
-                    <Link
-                        to="/admin/plans/create"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200"
-                    >
-                        <LucidePlus className="w-4 h-4" />
-                        Create First Plan
-                    </Link>
+                    <p className="text-sm text-muted">Plans can be created by employees through their dashboard or by a support agent.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

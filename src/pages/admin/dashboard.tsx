@@ -133,13 +133,6 @@ const Dashboard = () => {
                         <p className="text-xs text-muted mt-1">Add new employees to your company</p>
                     </Link>
                     <Link
-                        to="/admin/plans/create"
-                        className="p-4 rounded-xl border border-border-light/50 bg-background-primary/30 hover:border-accent/40 transition-colors duration-150"
-                    >
-                        <p className="text-sm font-semibold text-heading">Create Travel Plan</p>
-                        <p className="text-xs text-muted mt-1">Generate a new health plan</p>
-                    </Link>
-                    <Link
                         to="/admin/credits"
                         className="p-4 rounded-xl border border-border-light/50 bg-background-primary/30 hover:border-accent/40 transition-colors duration-150"
                     >

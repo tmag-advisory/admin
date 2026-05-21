@@ -11,7 +11,7 @@ The Company Admin Dashboard is the React portal for company administrators and H
 - TanStack Query
 - Zustand
 - Axios
-- Framer Motion, GSAP, Recharts, Lucide React
+- Framer Motion, Recharts, Lucide React
 
 ## Local URL
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LucideArrowLeft, LucideSearch, LucideFileText, LucideLoader2 } from "lucide-react";
 import { useInvoices } from "../../../api/hooks";
+import LaunchDiscountBanner from "../../../components/LaunchDiscountBanner";
 
 const Invoices = () => {
     const [search, setSearch] = useState("");
@@ -29,6 +30,8 @@ const Invoices = () => {
                     <p className="text-sm text-muted mt-1">View and download your billing history</p>
                 </div>
             </div>
+
+            <LaunchDiscountBanner variant="page" />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">

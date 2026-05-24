@@ -26,6 +26,8 @@ import {
   companyPlansApi,
   companyAdminManagementApi,
 } from "./api";
+import { platformApi, LAUNCH_DISCOUNT_FALLBACK } from "./platform";
+import type { LaunchDiscount } from "./platform";
 import type {
   LoginRequest,
   CreateCompanyRequest,
@@ -1188,5 +1190,20 @@ export function useCompanyAdminAllocateCredits() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.companyUsers.all });
     },
+  });
+}
+
+// ─── Platform Discount Hook ───────────────────────────────────
+/**
+ * Fetches platform-wide launch discount state. Falls back to a disabled
+ * shape on error so price-rendering sites can render unconditionally.
+ */
+export function useLaunchDiscount() {
+  return useQuery<LaunchDiscount>({
+    queryKey: ["launch-discount"],
+    queryFn: () => platformApi.getLaunchDiscount(),
+    staleTime: 5 * 60_000,
+    retry: 1,
+    placeholderData: LAUNCH_DISCOUNT_FALLBACK,
   });
 }

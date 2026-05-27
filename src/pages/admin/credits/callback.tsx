@@ -16,6 +16,8 @@ const PaymentCallback = () => {
     const txRef = searchParams.get("tx_ref");
     const flwStatus = searchParams.get("status");
     const transactionId = searchParams.get("transaction_id");
+    const callbackSuccess = searchParams.get("success");
+    const callbackError = searchParams.get("error");
 
     useEffect(() => {
         if (hasVerified.current) return;
@@ -23,16 +25,17 @@ const PaymentCallback = () => {
         const verifyPayment = async () => {
             if (!txRef) {
                 setStatus("failed");
-                setErrorMessage("Missing transaction reference");
+                setErrorMessage(callbackError || "Missing transaction reference");
                 return;
             }
 
-            if (flwStatus && flwStatus !== "successful" && flwStatus !== "completed") {
+            if (callbackSuccess === "false" || (flwStatus && flwStatus !== "successful" && flwStatus !== "completed")) {
                 setStatus("failed");
                 setErrorMessage(
-                    flwStatus === "cancelled"
+                    callbackError ||
+                    (flwStatus === "cancelled"
                         ? "Payment was cancelled"
-                        : "Payment was not completed"
+                        : "Payment was not completed")
                 );
                 return;
             }
@@ -55,18 +58,19 @@ const PaymentCallback = () => {
                         (result?.purchase?.status === "failed" ? "Payment failed" : "Payment was not completed")
                     );
                 }
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const apiError = error as { response?: { data?: { error?: string; message?: string } }; message?: string };
                 setStatus("failed");
                 setErrorMessage(
-                    error?.response?.data?.error ||
-                    error?.response?.data?.message ||
+                    apiError?.response?.data?.error ||
+                    apiError?.response?.data?.message ||
                     "Failed to verify payment"
                 );
             }
         };
 
         verifyPayment();
-    }, [txRef, flwStatus, transactionId]);
+    }, [txRef, flwStatus, transactionId, callbackSuccess, callbackError, verifyPurchase]);
 
     return (
         <div className="min-h-[60vh] flex items-center justify-center px-6">

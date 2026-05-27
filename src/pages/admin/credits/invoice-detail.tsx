@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { LucideArrowLeft, LucideLoader2, LucideFileText, LucideDownload } from "lucide-react";
 import { useInvoice, useMyCompanies } from "../../../api/hooks";
 import api from "../../../api/axios";
+import LaunchDiscountBanner from "../../../components/LaunchDiscountBanner";
 
 const InvoiceDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -107,6 +108,8 @@ const InvoiceDetail = () => {
                     {downloading ? "Downloading..." : "Download PDF"}
                 </button>
             </div>
+
+            <LaunchDiscountBanner variant="page" />
 
             {/* Invoice Card */}
             <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">

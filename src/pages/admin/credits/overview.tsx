@@ -4,13 +4,16 @@ import { useMyCompanies, useCompanyAdminPurchaseCredits, useCompanyAdminCreditQu
 import { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
+import LaunchDiscountBanner from "../../../components/LaunchDiscountBanner";
 
 type Quotes = {
     currencySymbol: string;
     basePrice: number;
     discountAmount: number;
     totalAmount: number;
-}
+    originalTotalAmount?: number | null;
+    launchDiscountAmount?: number | null;
+};
 
 const Credits = () => {
     const { data: companiesData } = useMyCompanies();
@@ -116,6 +119,7 @@ const Credits = () => {
             </div>
 
             {/* Purchase Credits */}
+            <LaunchDiscountBanner variant="page" className="mb-4" />
             <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                 <h2 className="text-base font-semibold text-heading mb-4">Purchase Credits</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -142,11 +146,20 @@ const Credits = () => {
                                         <div className="text-2xl font-semibold text-heading mb-1">
                                             {quote.currencySymbol}{quote.totalAmount.toLocaleString()}
                                         </div>
-                                        {quote.discountAmount > 0 && (
-                                            <div className="text-xs text-muted line-through mb-2">
-                                                {quote.currencySymbol}{quote.basePrice}
-                                            </div>
-                                        )}
+                                        {(quote.launchDiscountAmount && quote.launchDiscountAmount > 0)
+                                            ? (
+                                                <div className="text-xs text-emerald-700 mb-2">
+                                                    <span className="line-through text-muted mr-1">
+                                                        {quote.currencySymbol}{Number(quote.originalTotalAmount ?? 0).toLocaleString()}
+                                                    </span>
+                                                    Launch discount applied
+                                                </div>
+                                            )
+                                            : quote.discountAmount > 0 && (
+                                                <div className="text-xs text-muted line-through mb-2">
+                                                    {quote.currencySymbol}{quote.basePrice}
+                                                </div>
+                                            )}
                                     </>
                                 ) : (
                                     <div className="h-8 mb-4 flex items-center">
